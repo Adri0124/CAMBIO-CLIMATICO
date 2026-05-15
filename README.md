@@ -1,1 +1,88 @@
 # CAMBIO-CLIMATICO
+<div style="font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; border-radius: 15px; border: 1px solid #ccc; max-width: 600px; margin: auto;">
+    <h2 style="color: #2e7d32; text-align: center;">Simulador HLM: Balance Hídrico (Ing. Agronómica)</h2>
+    <p style="font-size: 0.9em; color: #555;">Ajustá las variables para ver el impacto del Cambio Climático según IPCC y Dore (2005).</p>
+
+    <div style="margin-bottom: 15px;">
+        <label>🌡️ Temp. Media (°C): <span id="valTemp">25</span></label>
+        <input type="range" id="temp" min="15" max="45" value="25" style="width: 100%; accent-color: #e67e22;" oninput="simular()">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label>🌧️ Precipitación (mm): <span id="valPrec">0</span></label>
+        <input type="range" id="prec" min="0" max="100" value="0" style="width: 100%; accent-color: #3498db;" oninput="simular()">
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <label>⚡ Intensidad (mm/h): <span id="valInten">20</span></label>
+        <input type="range" id="inten" min="5" max="100" value="20" style="width: 100%; accent-color: #8e44ad;" oninput="simular()">
+    </div>
+
+    <div style="margin-bottom: 20px;">
+        <label>🚜 Sistema de Riego:</label>
+        <select id="riego" style="width: 100%; padding: 5px; border-radius: 5px;" onchange="simular()">
+            <option value="0">Secano (Solo lluvia)</option>
+            <option value="10">Riego Presurizado (FAO)</option>
+        </select>
+    </div>
+
+    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid #2e7d32;">
+        <div style="margin-bottom: 10px;">📉 <b>Déficit/Superávit:</b> <span id="resAU" style="font-weight: bold;">100</span> mm AU</div>
+        <div style="margin-bottom: 10px;">🌊 <b>Escurrimiento:</b> <span id="resEsc" style="color: #c0392b;">0</span> mm</div>
+        <div style="margin-bottom: 10px;">☀️ <b>Demanda (ETc):</b> <span id="resETc" style="color: #d35400;">5</span> mm/día</div>
+        <div id="alerta" style="font-weight: bold; text-align: center; margin-top: 10px;"></div>
+    </div>
+</div>
+
+<script>
+function simular() {
+    // Entradas
+    let temp = parseFloat(document.getElementById('temp').value);
+    let prec = parseFloat(document.getElementById('prec').value);
+    let inten = parseFloat(document.getElementById('inten').value);
+    let riego = parseFloat(document.getElementById('riego').value);
+    
+    // Actualizar labels
+    document.getElementById('valTemp').innerText = temp;
+    document.getElementById('valPrec').innerText = prec;
+    document.getElementById('valInten').innerText = inten;
+
+    // Lógica HLM
+    let stockInicial = 100;
+    let etcBase = 5;
+    
+    // 1. Efecto IPCC (Temp -> ETc)
+    let etc = temp > 30 ? etcBase * 1.35 : etcBase;
+    
+    // 2. Efecto Dore (Intensidad -> Infiltración)
+    let infil = prec;
+    let esc = 0;
+    if (inten > 35) {
+        infil = prec * 0.3;
+        esc = prec * 0.7;
+    }
+
+    // 3. Ecuación de Continuidad
+    let stockFinal = stockInicial + infil + riego - etc;
+    if (stockFinal > 150) stockFinal = 150; // Capacidad de campo
+
+    // Mostrar Resultados
+    document.getElementById('resAU').innerText = stockFinal.toFixed(2);
+    document.getElementById('resEsc').innerText = esc.toFixed(2);
+    document.getElementById('resETc').innerText = etc.toFixed(2);
+
+    // Alertas
+    let alertaDiv = document.getElementById('alerta');
+    if (stockFinal < 50) {
+        alertaDiv.innerText = "⚠️ ESTRÉS HÍDRICO CRÍTICO";
+        alertaDiv.style.color = "red";
+    } else if (esc > 20) {
+        alertaDiv.innerText = "🌊 RIESGO DE EROSIÓN HÍDRICA";
+        alertaDiv.style.color = "orange";
+    } else {
+        alertaDiv.innerText = "✅ ESTADO ÓPTIMO";
+        alertaDiv.style.color = "green";
+    }
+}
+simular();
+</script>
