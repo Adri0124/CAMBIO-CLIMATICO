@@ -1,87 +1,82 @@
-<div style="font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; border-radius: 15px; border: 1px solid #ccc; max-width: 600px; margin: auto;">
-    <h2 style="color: #2e7d32; text-align: center;">Simulador HLM: Balance Hídrico (Ing. Agronómica)</h2>
-    <p style="font-size: 0.9em; color: #555;">Ajustá las variables para ver el impacto del Cambio Climático según IPCC y Dore (2005).</p>
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2c3e50; color: white; padding: 25px; border-radius: 20px; max-width: 650px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <h2 style="color: #4db6ac; text-align: center; margin-top: 0;">Simulador HLM Pro: Estados del Agroecosistema</h2>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <label style="font-size: 0.8em;">🌡️ Temp. Extrema (°C): <span id="vT">30</span></label>
+            <input type="range" id="T" min="20" max="50" value="30" style="width:100%" oninput="update()">
+            
+            <label style="font-size: 0.8em;">⛈️ Intensidad Lluvia (mm/h): <span id="vI">20</span></label>
+            <input type="range" id="I" min="0" max="120" value="20" style="width:100%" oninput="update()">
 
-    <div style="margin-bottom: 15px;">
-        <label>🌡️ Temp. Media (°C): <span id="valTemp">25</span></label>
-        <input type="range" id="temp" min="15" max="45" value="25" style="width: 100%; accent-color: #e67e22;" oninput="simular()">
+            <label style="font-size: 0.8em;">🌿 Biodiversidad (Índice): <span id="vB">1.0</span></label>
+            <input type="range" id="B" min="0" max="1" step="0.1" value="1" style="width:100%" oninput="update()">
+        </div>
+
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+            <div id="statusSuelo" style="margin-bottom: 8px;">🧪 Suelo: <span style="color:#81c784">Sano</span></div>
+            <div id="statusPlanta" style="margin-bottom: 8px;">🌽 Cultivo: <span style="color:#81c784">Productivo</span></div>
+            <div id="statusPlaga" style="margin-bottom: 8px;">🐜 Plagas: <span style="color:#81c784">Controladas</span></div>
+        </div>
     </div>
 
-    <div style="margin-bottom: 15px;">
-        <label>🌧️ Precipitación (mm): <span id="valPrec">0</span></label>
-        <input type="range" id="prec" min="0" max="100" value="0" style="width: 100%; accent-color: #3498db;" oninput="simular()">
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label>⚡ Intensidad (mm/h): <span id="valInten">20</span></label>
-        <input type="range" id="inten" min="5" max="100" value="20" style="width: 100%; accent-color: #8e44ad;" oninput="simular()">
-    </div>
-
-    <div style="margin-bottom: 20px;">
-        <label>🚜 Sistema de Riego:</label>
-        <select id="riego" style="width: 100%; padding: 5px; border-radius: 5px;" onchange="simular()">
-            <option value="0">Secano (Solo lluvia)</option>
-            <option value="10">Riego Presurizado (FAO)</option>
-        </select>
-    </div>
-
-    <div style="background: white; padding: 15px; border-radius: 10px; border-left: 5px solid #2e7d32;">
-        <div style="margin-bottom: 10px;">📉 <b>Déficit/Superávit:</b> <span id="resAU" style="font-weight: bold;">100</span> mm AU</div>
-        <div style="margin-bottom: 10px;">🌊 <b>Escurrimiento:</b> <span id="resEsc" style="color: #c0392b;">0</span> mm</div>
-        <div style="margin-bottom: 10px;">☀️ <b>Demanda (ETc):</b> <span id="resETc" style="color: #d35400;">5</span> mm/día</div>
-        <div id="alerta" style="font-weight: bold; text-align: center; margin-top: 10px;"></div>
+    <div style="margin-top: 20px; background: #ecf0f1; color: #2c3e50; padding: 20px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 1.2em;">Resiliencia del Sistema: <b id="resiliencia">100%</b></div>
+        <div style="font-size: 2em; margin: 10px 0;" id="rendimiento">Rendimiento: 100%</div>
+        <p id="msg" style="font-style: italic; font-size: 0.9em; color: #7f8c8d;"></p>
     </div>
 </div>
 
 <script>
-function simular() {
-    // Entradas
-    let temp = parseFloat(document.getElementById('temp').value);
-    let prec = parseFloat(document.getElementById('prec').value);
-    let inten = parseFloat(document.getElementById('inten').value);
-    let riego = parseFloat(document.getElementById('riego').value);
+function update() {
+    let t = document.getElementById('T').value;
+    let i = document.getElementById('I').value;
+    let b = document.getElementById('B').value;
     
-    // Actualizar labels
-    document.getElementById('valTemp').innerText = temp;
-    document.getElementById('valPrec').innerText = prec;
-    document.getElementById('valInten').innerText = inten;
+    document.getElementById('vT').innerText = t;
+    document.getElementById('vI').innerText = i;
+    document.getElementById('vB').innerText = b;
 
-    // Lógica HLM
-    let stockInicial = 100;
-    let etcBase = 5;
+    let rend = 100;
+    let res = 100;
+    let msg = "El sistema mantiene su equilibrio dinámico.";
+
+    // Lógica de Cambios de Estado (Non-linear transitions)
     
-    // 1. Efecto IPCC (Temp -> ETc)
-    let etc = temp > 30 ? etcBase * 1.35 : etcBase;
-    
-    // 2. Efecto Dore (Intensidad -> Infiltración)
-    let infil = prec;
-    let esc = 0;
-    if (inten > 35) {
-        infil = prec * 0.3;
-        esc = prec * 0.7;
-    }
-
-    // 3. Ecuación de Continuidad
-    let stockFinal = stockInicial + infil + riego - etc;
-    if (stockFinal > 150) stockFinal = 150; // Capacidad de campo
-
-    // Mostrar Resultados
-    document.getElementById('resAU').innerText = stockFinal.toFixed(2);
-    document.getElementById('resEsc').innerText = esc.toFixed(2);
-    document.getElementById('resETc').innerText = etc.toFixed(2);
-
-    // Alertas
-    let alertaDiv = document.getElementById('alerta');
-    if (stockFinal < 50) {
-        alertaDiv.innerText = "⚠️ ESTRÉS HÍDRICO CRÍTICO";
-        alertaDiv.style.color = "red";
-    } else if (esc > 20) {
-        alertaDiv.innerText = "🌊 RIESGO DE EROSIÓN HÍDRICA";
-        alertaDiv.style.color = "orange";
+    // 1. Punto de quiebre térmico (Fisiología)
+    if (t > 42) {
+        rend -= 60;
+        document.getElementById('statusPlanta').innerHTML = "🌽 Cultivo: <span style='color:#e57373'>ABORTO FLORAL</span>";
+        msg = "Colapso fisiológico por golpe de calor (IPCC).";
     } else {
-        alertaDiv.innerText = "✅ ESTADO ÓPTIMO";
-        alertaDiv.style.color = "green";
+        document.getElementById('statusPlanta').innerHTML = "🌽 Cultivo: <span style='color:#81c784'>Productivo</span>";
     }
+
+    // 2. Cambio de estado del suelo (Física de suelos)
+    if (i > 70) {
+        res -= 40;
+        document.getElementById('statusSuelo').innerHTML = "🧪 Suelo: <span style='color:#ffb74d'>DEGRADADO (Sello)</span>";
+        msg = "Intensidad extrema de Dore (2005) causó encostramiento.";
+    } else {
+        document.getElementById('statusSuelo').innerHTML = "🧪 Suelo: <span style='color:#81c784'>Sano</span>";
+    }
+
+    // 3. Quiebre de Biodiversidad (Ecología - Ficha B)
+    if (b < 0.4) {
+        rend -= 30;
+        document.getElementById('statusPlaga').innerHTML = "🐜 Plagas: <span style='color:#e57373'>OUTBREAK (Plaga)</span>";
+        msg = "Baja biodiversidad eliminó controladores biológicos.";
+    } else {
+        document.getElementById('statusPlaga').innerHTML = "🐜 Plagas: <span style='color:#81c784'>Controladas</span>";
+    }
+
+    // Cálculo final
+    res = res * b; // La biodiversidad multiplica la resiliencia
+    if(rend < 0) rend = 0;
+
+    document.getElementById('resiliencia').innerText = Math.round(res) + "%";
+    document.getElementById('rendimiento').innerText = "Rendimiento: " + Math.round(rend) + "%";
+    document.getElementById('msg').innerText = msg;
 }
-simular();
+update();
 </script>
