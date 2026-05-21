@@ -243,11 +243,11 @@
     <header>
         <h1>Simulador Agroclimático de Escenarios Futuros (NOA)</h1>
         <p>Modelo didáctico e interactivo basado en las variables físicas y umbrales biológicos del Sexto Informe de Evaluación (AR6) del IPCC.</p>
-        <span class="badge-ipcc">IPCC AR6 - Grupo de Trabajo I</span>
+        <span class="badge-ipcc">IPCC AR6 - ejemplos de cultivos del NOA</span>
     </header>
 
     <div class="instruction-box">
-        <strong>💡 Consigna para la dinámica en el Anfiteatro:</strong> Modifiquen las variables de las perillas climáticas (Inputs) para observar la respuesta en cascada del agroecosistema seleccionado. Usen este simulador para contrastar las percepciones locales de los productores y completar el <strong>Cuadro 2 del Punto 3</strong> en su informe escrito.
+        <strong>💡 Consigna para la dinámica en el Aula:</strong> Modifiquen las variables de las perillas climáticas (Inputs) para observar la respuesta en cascada del agroecosistema seleccionado. Usen este simulador para contrastar las percepciones locales de los productores y completar el <strong>Cuadro 2 del Punto 3</strong> en su informe escrito.
     </div>
 
     <div class="main-layout">
@@ -262,7 +262,9 @@
                     <select id="cropSelect" class="select-control" onchange="updateSimulator()">
                         <option value="caña">Caña de Azúcar (El Ramal - Planta C4)</option>
                         <option value="tabaco">Tabaco (Valles Templados - Planta C3)</option>
-                        <option value="poroto">Poroto Seco (Zonas Semiáridas - Leguminosa C3)</option>
+                        <option value="poroto">Poroto a secano (Zonas Semiáridas - Leguminosa C3)</option>
+                        <option value="citricos">Frutales Cítricos (Yungas/Valles - Perenne C3)</option>
+                        <option value="andinos">Cultivos Andinos (Quebrada/Puna - Resilientes C3)</option>
                     </select>
                 </div>
 
@@ -308,26 +310,26 @@
                 
                 <div class="indicator-card card-clima">
                     <h4>Nivel 1: Dinámica Física e Hidrología</h4>
-                    <p id="outClima">Humedad edáfica con mermas estacionales breves. El déficit de presión de vapor se mantiene dentro de los rangos históricos de la región.</p>
-                    <span id="statusClima" class="status-box status-normal">Estable</span>
+                    <p id="outClima">-</p>
+                    <span id="statusClima" class="status-box status-normal">-</span>
                 </div>
 
                 <div class="indicator-card card-fisio">
                     <h4>Nivel 2: Respuesta Fisiológica Directa</h4>
-                    <p id="outFisio">Tasa fotosintética óptima. La planta regula la apertura estomática de forma normal sin registrar estrés térmico celular crónico.</p>
-                    <span id="statusFisio" class="status-box status-normal">Óptimo</span>
+                    <p id="outFisio">-</p>
+                    <span id="statusFisio" class="status-box status-normal">-</span>
                 </div>
 
                 <div class="indicator-card card-rinde">
                     <h4>Nivel 3: Componentes del Rendimiento</h4>
-                    <p id="outRinde">Pérdidas físicas marginales o nulas. El llenado de estructuras y la acumulación de fotoasimilados completan sus ciclos temporales normales.</p>
-                    <span id="statusRinde" class="status-box status-normal">Normal</span>
+                    <p id="outRinde">-</p>
+                    <span id="statusRinde" class="status-box status-normal">-</span>
                 </div>
 
                 <div class="indicator-card card-socio">
                     <h4>Nivel 4: Consecuencia Socioeconómica</h4>
-                    <p id="outSocio">Rentabilidad del productor resguardada. Estabilidad en la oferta laboral y en la demanda de mano de obra local durante la cosecha.</p>
-                    <span id="statusSocio" class="status-box status-normal">Seguro</span>
+                    <p id="outSocio">-</p>
+                    <span id="statusSocio" class="status-box status-normal">-</span>
                 </div>
 
             </div>
@@ -445,6 +447,76 @@
                     statusText: ["Aridez Severa", "Inanición Carbono", "Pérdida Absoluta", "Quiebra / Éxodo"]
                 }
             ]
+        },
+        citricos: {
+            name: "Plantas Cítricas (Perenne C3)",
+            scenarios: [
+                {
+                    maxTemp: 1.5,
+                    escenario: "SSP1-2.6 (Emisiones Bajas): Clima subtropical húmedo estable.",
+                    clima: "Régimen térmico e hídrico sin grandes desvíos en el piedemonte. Humedad relativa en niveles normales durante la primavera.",
+                    fisio: "Balance adecuado entre fotosíntesis y respiración. Buena inducción floral inducida por el reposo invernal normal.",
+                    rinde: "Rendimiento y tamaño del fruto estables. Índice de madurez (Ratio) equilibrado para empaque de exportación.",
+                    socio: "Sostenimiento de la cadena agroindustrial citrícola y de los empleos permanentes y de cosecha (limón/naranja).",
+                    status: ["normal", "normal", "normal", "normal"],
+                    statusText: ["Estable", "Equilibrado", "Normal", "Seguro"]
+                },
+                {
+                    maxTemp: 2.5,
+                    escenario: "SSP2-4.5 (Emisiones Intermedias): Incremento del Déficit de Presión de Vapor.",
+                    clima: "Olas de calor primaverales tempranas. El aire seco eleva bruscamente la demanda de agua desde la atmósfera (evapotranspiración severa).",
+                    fisio: "Cierre estomático defensivo prolongado en horas críticas. Golpe de calor severo en frutos pequeños que inician su desarrollo.",
+                    rinde: "Fenómeno de 'caída de fruta' en primavera (pérdidas de rinde del 15% al 20%). Frutos remanentes con calibres comerciales más chicos.",
+                    socio: "Pérdida de competitividad exportadora. Necesidad urgente de inversiones en mallas de sombreo parcial o sistemas antiescaldado.",
+                    status: ["warning", "warning", "warning", "warning"],
+                    statusText: ["Atmósfera Seca", "Caída de Órganos", "Menor Calibre", "Alerta Comercial"]
+                },
+                {
+                    maxTemp: 4.5,
+                    escenario: "SSP5-8.5 (Emisiones Altas): Estrés perenne y desorden fisiológico.",
+                    clima: "Ausencia de frío invernal regulador y sequías extremas continuas. Pérdida drástica de agua en las capas profundas del suelo.",
+                    fisio: "Desorden en la diferenciación floral por falta de frío invernal. Fotoinhibición crónica y quemaduras de corteza (golpe de sol irreversible).",
+                    rinde: "Mermas catastróficas por descarte comercial (>35%). Jugos con acidez desbalanceada y pérdida de viabilidad en montes frutales perennes viejos.",
+                    socio: "Quiebra de empresas citrícolas empacadoras. Despido de operarios de planta y fuerte impacto socioeconómico en los valles productivos.",
+                    status: ["danger", "danger", "danger", "danger"],
+                    statusText: ["Déficit Crítico", "Falla Floral", "Descarte Masivo", "Crisis Industrial"]
+                }
+            ]
+        },
+        andinos: {
+            name: "Cultivos Andinos (Anuales C3 Resilientes)",
+            scenarios: [
+                {
+                    maxTemp: 1.5,
+                    escenario: "SSP1-2.6 (Emisiones Bajas): Preservación de la dinámica de valles y quebradas.",
+                    clima: "Estacionalidad andina conservada. Las heladas invernales ocurren en sus fechas estadísticas normales.",
+                    fisio: "Especies adaptadas (quinoa, papas andinas) muestran excelente regulación osmótica ante la alta radiación solar basal.",
+                    rinde: "Rendimientos estables que garantizan el autoconsumo y el comercio a pequeña escala en ferias locales.",
+                    socio: "Preservación del tejido social de las comunidades originarias y de sus sistemas agrícolas tradicionales.",
+                    status: ["normal", "normal", "normal", "normal"],
+                    statusText: ["Típico Andino", "Resiliente", "Normal", "Soberanía Alim."]
+                },
+                {
+                    maxTemp: 2.5,
+                    escenario: "SSP2-4.5 (Emisiones Intermedias): Pérdida de la previsibilidad térmica.",
+                    clima: "Desplazamiento e imprevisibilidad de las fechas de heladas debido a anomalías de temperatura. Retraso crónico de las lluvias de altura.",
+                    fisio: "El brotado temprano por otoños más cálidos expone los tejidos tiernos a heladas tardías imprevistas. Estrés hídrico en etapas iniciales.",
+                    rinde: "Mermas en la cosecha del 20% debido a daños por frío en momentos inadecuados del ciclo o falta de humedad en la siembra.",
+                    socio: "Compromiso de la seguridad alimentaria en comunidades de altura. Pérdida de variedades locales de semillas por malas campañas consecutivas.",
+                    status: ["warning", "warning", "warning", "danger"],
+                    statusText: ["Inestabilidad", "Ciclo Desfasado", "Rinde Variable", "Riesgo Alim."]
+                },
+                {
+                    maxTemp: 4.5,
+                    escenario: "SSP5-8.5 (Emisiones Altas): Ruptura del nicho ecológico andino.",
+                    clima: "Aumento extremo de las temperaturas mínimas nocturnas en la Quebrada. Desaparición de las ventanas hídricas tradicionales.",
+                    fisio: "Pérdida de la aclimatación al frío. Aumento desmedido de la respiración celular nocturna, gastando las reservas de carbono acumuladas en el día.",
+                    rinde: "Pérdida drástica de aptitud agrícola de los suelos de valles altos. Colapso del rinde de tubérculos por falta de tuberización (requiere noches frías).",
+                    socio: "Éxodo rural forzado de comunidades de la Quebrada y Puna hacia centros urbanos debido a la imposibilidad de sostener la agricultura de subsistencia.",
+                    status: ["danger", "danger", "danger", "danger"],
+                    statusText: ["Clima Alterado", "Inanición Energ.", "Pérdida Crítica", "Éxodo Rural"]
+                }
+            ]
         }
     };
 
@@ -474,7 +546,7 @@
 
         if (rain === 'extrema') {
             climaText += " [ALERTA: Se simulan escorrentías torrenciales y erosión hídrica severa debido a la intensidad extrema de la lluvia].";
-            rindeText += " [Pérdida adicional por lavado de polen o asfixia radicular en zonas bajas].";
+            rindeText += " [Pérdida adicional por lavado de polen, lixiviación o asfixia radicular en zonas bajas].";
         } else if (rain === 'alta' && temp >= 2.5) {
             climaText += " [Efecto IPCC: Inundaciones pluviales recurrentes por aumento de la retención de vapor atmosférico].";
         }
