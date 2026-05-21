@@ -2,135 +2,122 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador HLM Agronómico - UNJu</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TP Cambio Climático - Cátedra Ética y Sostenibilidad Ambiental</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .dashboard { background: #2d2d2d; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .panel-controles { background: #3d3d3d; padding: 20px; border-radius: 10px; }
-        .panel-graficos { background: #ffffff10; padding: 20px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; }
-        h2 { color: #4db6ac; margin-top: 0; grid-column: span 2; text-align: center; }
-        label { display: block; font-size: 0.85em; margin-top: 10px; color: #b0bec5; }
-        input[type=range] { width: 100%; cursor: pointer; accent-color: #4db6ac; }
-        .stat-card { text-align: center; margin-top: 15px; width: 100%; }
-        #gauge-container { width: 200px; height: 100px; position: relative; }
-        .alerta { grid-column: span 2; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; min-height: 20px; }
+        body {
+            font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #1e4620;
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 26px; text-transform: uppercase; }
+        header h2 { margin: 5px 0 0 0; font-size: 18px; font-weight: 300; }
+        .badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .section-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid #2e7d32;
+        }
+        .section-card.ethical {
+            border-left-color: #9c27b0;
+        }
+        h3 { color: #1e4620; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; margin-top: 0; }
+        .ethical h3 { color: #7b1fa2; border-bottom-color: #f3e5f5; }
+        .alert-box {
+            background-color: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .alert-box strong { color: #e65100; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th { background-color: #f5f5f5; color: #1e4620; }
+        .code-list {
+            background-color: #f1f8e9;
+            padding: 15px;
+            border-radius: 6px;
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .code-list li { margin-bottom: 8px; }
+        .code-list strong { color: #2e7d32; }
+        .pautas-lista { padding-left: 20px; }
+        .pautas-lista li { margin-bottom: 5px; }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            margin-top: 40px;
+            border-top: 1px solid #e0e0e0;
+        }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <h2>Dashboard HLM: Resiliencia del Agroecosistema (IPCC/FAO)</h2>
+<header>
+    <h1>Ética y Sostenibilidad Ambiental</h1>
+    <h2>Unidad 3: Sociedad y su impacto sobre el ambiente</h2>
+    <div class="badge">Trabajo Práctico: Cambio Climático (Cohorte 2026)</div>
+</header>
 
-        <div class="panel-controles">
-            <label>🌡️ Temperatura Global (+°C): <b id="vT">0</b></label>
-            <input type="range" id="T" min="0" max="5" step="0.5" value="0" oninput="run()">
+<div class="section-card">
+    <h3>📋 Pautas de Presentación y Evaluación</h3>
+    <ul class="pautas-lista">
+        <li><strong>Modalidad:</strong> Grupal (en los Macro-grupos territoriales de hasta 10 integrantes asignados en el anfiteatro).</li>
+        <li><strong>Formato de entrega:</strong> Documento digital en formato PDF enviado al aula virtual.</li>
+        <li><strong>Formato de texto:</strong> Tipografía Arial o Calibri 11, interlineado 1.15, margen normal.</li>
+        <li><strong>Extensión máxima:</strong> 5 páginas (sin contar carátula ni anexos).</li>
+        <li><strong>Criterios clave:</strong> Rigor en el uso de datos del IPCC, capacidad de anclaje territorial en el NOA, claridad en la sistematización y profundidad en la reflexión ética.</li>
+    </ul>
+</div>
 
-            <label>⛈️ Intensidad de Lluvia (Dore 2005): <b id="vI">Baja</b></label>
-            <input type="range" id="I" min="10" max="120" value="20" oninput="run()">
-
-            <label>🪱 Materia Orgánica (%) : <b id="vMO">2</b></label>
-            <input type="range" id="MO" min="0.5" max="6" step="0.5" value="2" oninput="run()">
-
-            <label>🌳 Biodiversidad (Ficha A vs B): <b id="vB">0.5</b></label>
-            <input type="range" id="B" min="0.1" max="1" step="0.1" value="0.5" oninput="run()">
-            
-            <hr style="border: 0.5px solid #555; margin: 20px 0;">
-            <label>💧 Riego Suplementario (FAO):</label>
-            <select id="riego" onchange="run()" style="width:100%; padding:8px; background:#444; color:white; border:none; border-radius:5px;">
-                <option value="0">Sin Riego (Secano)</option>
-                <option value="20">Riego por Goteo (Eficiente)</option>
-                <option value="40">Manejo Intensivo</option>
-            </select>
-        </div>
-
-        <div class="panel-graficos">
-            <canvas id="chartRendimiento" width="200" height="200"></canvas>
-            <div class="stat-card">
-                <div style="font-size: 0.9em; color: #aaa;">Huella de Carbono (Subsidios)</div>
-                <div id="costoEnergia" style="font-size: 1.5em; color: #ff5252;">0%</div>
-            </div>
-        </div>
-
-        <div id="msgAlerta" class="alerta">Cargando sistema...</div>
+<div class="section-card">
+    <h3>📝 Introducción</h3>
+    <p>El cambio climático constituye una de las problemáticas ambientales más importantes de la actualidad, debido a sus efectos sobre los ecosistemas, la producción de alimentos y la calidad de vida de las sociedades. Además, constituye uno de los desafíos éticos, ambientales y productivos más complejos de nuestro siglo, situando a la agricultura en una encrucijada fundamental: es, simultáneamente, ¿una de las actividades más vulnerables a sus impactos? y/o ¿es una fuente significativa de emisiones de Gases de Efecto Invernadero (GEI)?</p>
+    
+    <p>Se entiende por cambio climático la modificación significativa y prolongada de las condiciones climáticas del planeta, manifestada a través de variaciones en la temperatura, las precipitaciones, la frecuencia de eventos extremos y otros fenómenos atmosféricos. Si bien el clima de la Tierra ha cambiado naturalmente a lo largo de su historia, en las últimas décadas la comunidad científica ha demostrado que el actual proceso de calentamiento global está fuertemente vinculado a las actividades humanas, principalmente por la emisión de gases de efecto invernadero provenientes de la quema de combustibles fósiles, la deforestación y ciertos sistemas productivos.</p>
+    
+    <p>De acuerdo con el <strong>Sexto Informe de Evaluación (AR6) del IPCC</strong>, la influencia humana en el calentamiento del sistema climático es hoy un hecho inequívoco. Las concentraciones atmosféricas de dióxido de carbono (CO<sub>2</sub>), metano (CH<sub>4</sub>) y óxido nitroso (N<sub>2</sub>O) han alcanzado niveles sin precedentes en los últimos 800.000 años, impulsadas en gran medida por los modelos convencionales de producción agropecuaria y la quema de combustibles fósiles.</p>
+    
+    <div class="alert-box">
+        <strong>💡 ¿Y en Argentina?</strong> Este escenario global se traduce en transformaciones tangibles en nuestros territorios. Los datos históricos del Centro de Investigaciones del Mar y la Atmósfera (CIMA) ya evidencian aumentos en las temperaturas mínimas medias y una marcada alteración en los patrones de precipitación, manifestada en eventos extremos como sequías prolongadas en la región del NOA. Estas anomalías rompen la estabilidad de los agroecosistemas, corriendo las fechas de heladas, acelerando los ciclos fenológicos de los cultivos y forzando una revisión urgente de las estrategias de manejo tradicional.
     </div>
 
-    <script>
-        let chart;
-        
-        function initChart() {
-            const ctx = document.getElementById('chartRendimiento').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Rendimiento', 'Pérdida'],
-                    datasets: [{
-                        data: [100, 0],
-                        backgroundColor: ['#4db6ac', '#333'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { cutout: '80%', plugins: { legend: { display: false } } }
-            });
-        }
-
-        function run() {
-            // Captura de variables
-            let t = parseFloat(document.getElementById('T').value);
-            let i = parseFloat(document.getElementById('I').value);
-            let mo = parseFloat(document.getElementById('MO').value);
-            let b = parseFloat(document.getElementById('B').value);
-            let riego = parseFloat(document.getElementById('riego').value);
-
-            // Update Labels
-            document.getElementById('vT').innerText = "+" + t;
-            document.getElementById('vMO').innerText = mo + "%";
-            document.getElementById('vB').innerText = b;
-            document.getElementById('vI').innerText = i > 70 ? "EXTREMA" : (i > 40 ? "ALTA" : "NORMAL");
-
-            // --- Lógica del Modelo HLM ---
-            let rendimiento = 100;
-            let subsidios = 0;
-            let alerta = document.getElementById('msgAlerta');
-            
-            // 1. Efecto IPCC: Temperatura -> Estrés y Demanda
-            rendimiento -= (t * 10); // Pérdida directa por calor
-            subsidios += (t * 5);    // Costo de enfriamiento/riego extra
-
-            // 2. Efecto Dore: Intensidad -> Infiltración
-            let infiltracionEfectiva = 100 - (i * 0.5); 
-            if (i > 80 && mo < 3) {
-                rendimiento -= 30; // Sellado de suelo
-                alerta.innerText = "🚨 COLAPSO: SUELO SELLADO POR INTENSIDAD";
-                alerta.style.background = "#d32f2f";
-            } else {
-                alerta.innerText = "✅ SISTEMA OPERATIVO";
-                alerta.style.background = "#388e3c";
-            }
-
-            // 3. Efecto Fichas: Biodiversidad -> Control de Plagas
-            if (b < 0.3) {
-                subsidios += 40; // Necesitas más agroquímicos
-                rendimiento -= 20;
-                if (b < 0.2) alerta.innerText = "🐛 PLAGA DESCONTROLADA (Baja Biodiversidad)";
-            }
-
-            // 4. Mitigación por MO y Riego
-            rendimiento += (mo * 5); // La MO amortigua
-            if (riego > 0) subsidios += (riego * 0.5);
-
-            // Limitar valores
-            rendimiento = Math.max(0, Math.min(100, rendimiento));
-            subsidios = Math.max(0, subsidios);
-
-            // Actualizar Gráfica
-            chart.data.datasets[0].data = [rendimiento, 100 - rendimiento];
-            chart.update();
-            
-            document.getElementById('costoEnergia').innerText = Math.round(subsidios) + " units";
-        }
-
-        window.onload = () => { initChart(); run(); };
-    </script>
-</body>
-</html>
+    <p><strong>Objetivo General:</strong> Este trabajo práctico busca introducir los conceptos básicos sobre esta problemática global, analizando sus causas, consecuencias y
