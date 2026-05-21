@@ -3,121 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TP Cambio Climático - Cátedra Ética y Sostenibilidad Ambiental</title>
+    <title>Simulador Agroclimático NOA - IPCC AR6</title>
     <style>
+        :root {
+            --primary-color: #2c5e3b;
+            --primary-light: #eaf2ec;
+            --accent-warm: #d97706;
+            --accent-cold: #2563eb;
+            --accent-danger: #dc2626;
+            --text-main: #1f2937;
+            --bg-main: #f3f4f6;
+            --card-bg: #ffffff;
+        }
+
         body {
-            font-family: 'Segoe UI', Calibri, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 900px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f9f9f9;
         }
+
         header {
-            background-color: #1e4620;
+            background: linear-gradient(135deg, #1e3f20 0%, #2c5e3b 100%);
             color: white;
-            padding: 30px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 30px;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        header h1 { margin: 0; font-size: 26px; text-transform: uppercase; }
-        header h2 { margin: 5px 0 0 0; font-size: 18px; font-weight: 300; }
-        .badge {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            padding: 6px 12px;
-            border-radius: 20px;
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        .badge-ipcc {
+            background-color: #f59e0b;
+            color: #1e293b;
+            padding: 4px 10px;
+            border-radius: 15px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             display: inline-block;
             margin-top: 10px;
         }
-        .section-card {
-            background: white;
+
+        .main-layout {
+            display: block;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 12px;
             padding: 25px;
-            border-radius: 8px;
             margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 5px solid #2e7d32;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border: 1px solid #e5e7eb;
         }
-        .section-card.ethical {
-            border-left-color: #9c27b0;
+
+        .panel-title {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        h3 { color: #1e4620; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; margin-top: 0; }
-        .ethical h3 { color: #7b1fa2; border-bottom-color: #f3e5f5; }
-        .alert-box {
-            background-color: #fff3e0;
-            border-left: 5px solid #ff9800;
+
+        /* Form groups and controls */
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .control-group {
+            background: #f9fafb;
             padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #f3f4f6;
         }
-        .alert-box strong { color: #e65100; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
             font-size: 14px;
+            color: #374151;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        th { background-color: #f5f5f5; color: #1e4620; }
-        .code-list {
-            background-color: #f1f8e9;
-            padding: 15px;
+
+        .select-control {
+            width: 100%;
+            padding: 10px;
             border-radius: 6px;
-            list-style-type: none;
-            padding-left: 20px;
+            border: 1px solid #d1d5db;
+            background-color: white;
+            font-size: 14px;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
         }
-        .code-list li { margin-bottom: 8px; }
-        .code-list strong { color: #2e7d32; }
-        .pautas-lista { padding-left: 20px; }
-        .pautas-lista li { margin-bottom: 5px; }
+
+        .select-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 94, 59, 0.15);
+        }
+
+        /* Slider styles */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex-grow: 1;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-weight: bold;
+            font-size: 15px;
+            min-width: 60px;
+            text-align: right;
+            color: var(--primary-color);
+            background: var(--primary-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Outputs and Indicators Layout */
+        .output-header {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-warm);
+        }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .indicator-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 18px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .card-clima::before { background-color: #3b82f6; }
+        .card-fisio::before { background-color: #10b981; }
+        .card-rinde::before { background-color: #f59e0b; }
+        .card-socio::before { background-color: #8b5cf6; }
+
+        .indicator-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4b5563;
+        }
+
+        .indicator-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .status-box {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .status-normal { background-color: #d1fae5; color: #065f46; }
+        .status-warning { background-color: #fef3c7; color: #92400e; }
+        .status-danger { background-color: #fee2e2; color: #991b1b; }
+
+        /* Instructional alert */
+        .instruction-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
         footer {
             text-align: center;
             padding: 20px;
-            color: #666;
-            font-size: 14px;
-            margin-top: 40px;
-            border-top: 1px solid #e0e0e0;
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 600px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Ética y Sostenibilidad Ambiental</h1>
-    <h2>Unidad 3: Sociedad y su impacto sobre el ambiente</h2>
-    <div class="badge">Trabajo Práctico: Cambio Climático (Cohorte 2026)</div>
-</header>
+<div class="container">
+    <header>
+        <h1>Simulador Agroclimático de Escenarios Futuros (NOA)</h1>
+        <p>Modelo didáctico e interactivo basado en las variables físicas y umbrales biológicos del Sexto Informe de Evaluación (AR6) del IPCC.</p>
+        <span class="badge-ipcc">IPCC AR6 - Grupo de Trabajo I</span>
+    </header>
 
-<div class="section-card">
-    <h3>📋 Pautas de Presentación y Evaluación</h3>
-    <ul class="pautas-lista">
-        <li><strong>Modalidad:</strong> Grupal (en los Macro-grupos territoriales de hasta 10 integrantes asignados en el anfiteatro).</li>
-        <li><strong>Formato de entrega:</strong> Documento digital en formato PDF enviado al aula virtual.</li>
-        <li><strong>Formato de texto:</strong> Tipografía Arial o Calibri 11, interlineado 1.15, margen normal.</li>
-        <li><strong>Extensión máxima:</strong> 5 páginas (sin contar carátula ni anexos).</li>
-        <li><strong>Criterios clave:</strong> Rigor en el uso de datos del IPCC, capacidad de anclaje territorial en el NOA, claridad en la sistematización y profundidad en la reflexión ética.</li>
-    </ul>
-</div>
-
-<div class="section-card">
-    <h3>📝 Introducción</h3>
-    <p>El cambio climático constituye una de las problemáticas ambientales más importantes de la actualidad, debido a sus efectos sobre los ecosistemas, la producción de alimentos y la calidad de vida de las sociedades. Además, constituye uno de los desafíos éticos, ambientales y productivos más complejos de nuestro siglo, situando a la agricultura en una encrucijada fundamental: es, simultáneamente, ¿una de las actividades más vulnerables a sus impactos? y/o ¿es una fuente significativa de emisiones de Gases de Efecto Invernadero (GEI)?</p>
-    
-    <p>Se entiende por cambio climático la modificación significativa y prolongada de las condiciones climáticas del planeta, manifestada a través de variaciones en la temperatura, las precipitaciones, la frecuencia de eventos extremos y otros fenómenos atmosféricos. Si bien el clima de la Tierra ha cambiado naturalmente a lo largo de su historia, en las últimas décadas la comunidad científica ha demostrado que el actual proceso de calentamiento global está fuertemente vinculado a las actividades humanas, principalmente por la emisión de gases de efecto invernadero provenientes de la quema de combustibles fósiles, la deforestación y ciertos sistemas productivos.</p>
-    
-    <p>De acuerdo con el <strong>Sexto Informe de Evaluación (AR6) del IPCC</strong>, la influencia humana en el calentamiento del sistema climático es hoy un hecho inequívoco. Las concentraciones atmosféricas de dióxido de carbono (CO<sub>2</sub>), metano (CH<sub>4</sub>) y óxido nitroso (N<sub>2</sub>O) han alcanzado niveles sin precedentes en los últimos 800.000 años, impulsadas en gran medida por los modelos convencionales de producción agropecuaria y la quema de combustibles fósiles.</p>
-    
-    <div class="alert-box">
-        <strong>💡 ¿Y en Argentina?</strong> Este escenario global se traduce en transformaciones tangibles en nuestros territorios. Los datos históricos del Centro de Investigaciones del Mar y la Atmósfera (CIMA) ya evidencian aumentos en las temperaturas mínimas medias y una marcada alteración en los patrones de precipitación, manifestada en eventos extremos como sequías prolongadas en la región del NOA. Estas anomalías rompen la estabilidad de los agroecosistemas, corriendo las fechas de heladas, acelerando los ciclos fenológicos de los cultivos y forzando una revisión urgente de las estrategias de manejo tradicional.
+    <div class="instruction-box">
+        <strong>💡 Consigna para la dinámica en el Anfiteatro:</strong> Modifiquen las variables de las perillas climáticas (Inputs) para observar la respuesta en cascada del agroecosistema seleccionado. Usen este simulador para contrastar las percepciones locales de los productores y completar el <strong>Cuadro 2 del Punto 3</strong> en su informe escrito.
     </div>
 
-    <p><strong>Objetivo General:</strong> Este trabajo práctico busca introducir los conceptos básicos sobre esta problemática global, analizando sus causas, consecuencias y
+    <div class="main-layout">
+        <!-- PANEL DE CONTROL (INPUTS) -->
+        <div class="panel">
+            <div class="panel-title">
+                <span>🎛️ Panel de Control de Variables (Inputs del Modelo)</span>
+            </div>
+            <div class="control-grid">
+                
+                <!-- CULTIVO SELECCIONADO -->
+                <div class="control-group">
+                    <label for="cropSelect">1. Cultivo Estratégico NOA</label>
+                    <select id="cropSelect" class="select-control" onchange="updateSimulator()">
+                        <option value="caña">Caña de Azúcar (El Ramal - Planta C4)</option>
+                        <option value="tabaco">Tabaco (Valles Templados - Planta C3)</option>
+                        <option value="poroto">Poroto Seco (Zonas Semiáridas - Leguminosa C3)</option>
+                    </select>
+                </div>
+
+                <!-- PERILLA DE TEMPERATURA -->
+                <div class="control-group">
+                    <label for="tempSlider">2. Calentamiento Global (&Delta;T)</label>
+                    <div class="slider-container">
+                        <input type="range" id="tempSlider" class="slider" min="1.0" max="4.5" step="0.5" value="1.5" oninput="updateSimulator()">
+                        <span id="tempValue" class="slider-value">+1.5 °C</span>
+                    </div>
+                </div>
+
+                <!-- PERILLA DE PRECIPITACIONES INTENSAS -->
+                <div class="control-group">
+                    <label for="rainSelect">3. Eventos de Lluvia Intensa</label>
+                    <select id="rainSelect" class="select-control" onchange="updateSimulator()">
+                        <option value="normal">Normal / Histórica</option>
+                        <option value="alta">Alta Concentración (+7% por °C de calentamiento)</option>
+                        <option value="extrema">Hiperconcentrada (Torrencial de Verano)</option>
+                    </select>
+                </div>
+
+                <!-- PERILLA DE CO2 ATMOSFÉRICO -->
+                <div class="control-group">
+                    <label for="co2Select">4. Concentración de CO<sub>2</sub></label>
+                    <select id="co2Select" class="select-control" onchange="updateSimulator()">
+                        <option value="actual">Actual (~415 ppm)</option>
+                        <option value="elevado">Elevado (~550 ppm - SSP2-4.5)</option>
+                        <option value="saturado">Muy Alto (>800 ppm - SSP5-8.5)</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PANEL DE RESULTADOS (OUTPUTS) -->
+        <div class="panel">
+            <div class="panel-title">
+                <span>📉 Dinámica del Agroecosistema en Cascada (Outputs Simulados)</span>
+            </div>
+            
+            <div class="output-header">
+                <strong>Escenario Evaluado:</strong> <span id="escenarioNombre">SSP1-2.6: Escenario de bajas emisiones y estabilización a largo plazo.</span>
+            </div>
+
+            <div class="output-grid">
+                
+                <!-- NIVEL 1: CLIMA Y SUELO -->
+                <div class="indicator-card card-clima">
+                    <h4>Nivel 1: Dinámica Física e Hidrología</h4>
+                    <p id="outClima">Humedad edáfica con mermas estacionales breves. El déficit de presión de vapor se mantiene dentro de los rangos históricos de la región.</p>
+                    <span id="statusClima" class="status-box status-normal">Estable</span>
+                </div>
+
+                <!-- NIVEL 2: RESPUESTA FISIOLÓGICA -->
+                <div class="indicator-card card-fisio">
+                    <h4>Nivel 2: Respuesta Fisiológica Directo</h4>
+                    <p id="outFisio">Tasa fotosintética óptima. La planta regula la apertura estomática de forma normal sin registrar estrés térmico celular crónico.</p>
+                    <span id="statusFisio" class="status-box status-normal">Óptimo</span>
+                </div>
+
+                <!-- NIVEL 3: RENDIMIENTO AGRONÓMICO -->
+                <div class="indicator-card card-rinde">
+                    <h4>Nivel 3: Componentes del Rendimiento</h4>
+                    <p id="outRinde">Pérdidas físicas marginales o nulas. El llenado de estructuras y la acumulación de fotoasimilados completan sus ciclos temporales normales.</p>
+                    <span id="statusRinde" class="status-box status-normal">Normal</span>
+                </div>
+
+                <!-- NIVEL 4: SOCIOECONÓMICO -->
+                <div class="indicator-card card-socio">
+                    <h4>Nivel 4: Consecuencia Socioeconómica</h4>
+                    <p id="outSocio">Rentabilidad del productor resguardada. Estabilidad en la oferta laboral y en la demanda de mano de obra local durante la cosecha.</p>
+                    <span id="statusSocio" class="status-box status-normal">Seguro</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Cátedra de Ética y Sostenibilidad Ambiental - Facultad de Ciencias Agrarias - UNJu - Herramienta Didáctica Cohorte 2026
+    </footer>
+</div>
+
+<script>
+    // Database of response matrices matching the IPCC scenarios and crop types
+    const database = {
+        caña: {
+            name: "Caña de Azúcar (Gramínea C4)",
+            scenarios: [
+                {
+                    maxTemp: 1.5,
+                    escenario: "SSP1-2.6 (Emisiones Bajas): Estabilización dentro de las metas del Acuerdo de París.",
+                    clima: "Mermas leves de agua útil en suelo durante la primavera (Ramal). Déficit de presión de vapor controlado.",
+                    fisio: "Alta eficiencia en el uso del agua. El metabolismo C4 aprovecha el CO2 basal sin sufrir fotoinhibición por calor.",
+                    rinde: "Rendimiento cultural (TCH) estable (-3% a -5% en secano). Maduración invernal óptima con buena acumulación de sacarosa.",
+                    socio: "Estabilidad económica general. Se sostienen los niveles de empleo para la zafra regional.",
+                    status: ["normal", "normal", "normal", "normal"],
+                    statusText: ["Estable", "Óptimo", "Normal", "Seguro"]
+                },
+                {
+                    maxTemp: 2.5,
+                    escenario: "SSP2-4.5 (Emisiones Intermedias): Umbrales de peligro superados frecuentemente.",
+                    clima: "Agotamiento rápido de humedad edáfica superficial en primavera. Incremento de la tasa de evapotranspiración potencial.",
+                    fisio: "Estrés térmico sostenido >38°C. Cierre estomático parcial durante las horas del mediodía, reduciendo la asimilación neta de CO2.",
+                    rinde: "Pérdida del 10% al 15% en toneladas de caña por hectárea. Menor elongación de entrenudos. Maduración afectada por mínimas invernales altas.",
+                    socio: "Aumento de costos de producción por necesidad de tecnificación de riego. Reducción en márgenes económicos del pequeño productor.",
+                    status: ["warning", "warning", "warning", "warning"],
+                    statusText: ["Alerta Hídrica", "Estrés Moderado", "Merma Física", "Márgenes Ajustados"]
+                },
+                {
+                    maxTemp: 4.5,
+                    escenario: "SSP5-8.5 / SSP3-7.0 (Emisiones Altas): Inacción climática y extremos concurrentes severos.",
+                    clima: "Sequías edáficas plurianuales severas. Olas de calor extremas concurrentes con déficit drástico de agua en el perfil profundo.",
+                    fisio: "Falla del sistema enzimático por calor extremo (>42°C). Cierre estomático prolongado, fotoinhibición severa y senescencia foliar anticipada.",
+                    rinde: "Colapso del rendimiento agrícola en secano (>40% de pérdida). Inversión de sacarosa en el tallo, disminuyendo drásticamente la calidad industrial.",
+                    socio: "Crisis en el sector azucarero regional. Pérdida masiva de empleo rural y reconversión forzada o abandono de parcelas de productores minifundistas.",
+                    status: ["danger", "danger", "danger", "danger"],
+                    statusText: ["Crítico / Sequía", "Daño Celular", "Colapso Rinde", "Crisis Sectorial"]
+                }
+            ]
+        },
+        tabaco: {
+            name: "Tabaco (Planta C3)",
+            scenarios: [
+                {
+                    maxTemp: 1.5,
+                    escenario: "SSP1-2.6 (Emisiones Bajas): Variabilidad climática dentro de límites históricos.",
+                    clima: "Disponibilidad hídrica en los valles templados regulada. Patrones de lluvia estival estables.",
+                    fisio: "Fotosíntesis C3 normal. El incremento de CO2 puede generar una leve fertilización si se compensa con el riego basal.",
+                    rinde: "Rendimiento físico y calidad comercial de la hoja dentro de los estándares de la provincia.",
+                    socio: "Mantenimiento de los requerimientos de mano de obra estacional intensiva (plantación y estufado).",
+                    status: ["normal", "normal", "normal", "normal"],
+                    statusText: ["Estable", "Óptimo", "Normal", "Seguro"]
+                },
+                {
+                    maxTemp: 2.5,
+                    escenario: "SSP2-4.5 (Emisiones Intermedias): Alteración del ciclo hidrológico y térmico.",
+                    clima: "Eventos de precipitaciones intensas concentradas que provocan lavado de nutrientes y erosión en surcos. Mayor humedad ambiental post-tormenta.",
+                    fisio: "Aumento de la presión de enfermedades fúngicas debido al binomio calor/humedad. Estrés hídrico transitorio por evaporación acelerada.",
+                    rinde: "Disminución de la calidad de la hoja (pérdida de elasticidad y color). Reducción del rendimiento cosechable en un 8% a 12%.",
+                    socio: "Pérdidas económicas por descarte de hojas de baja calidad. Incremento en el gasto de fitosanitarios para control de plagas.",
+                    status: ["warning", "warning", "warning", "warning"],
+                    statusText: ["Inestabilidad", "Alerta Sanitaria", "Pérdida Calidad", "Costo Mayor"]
+                },
+                {
+                    maxTemp: 4.5,
+                    escenario: "SSP5-8.5 (Emisiones Altas): Estrés extremo por calor recurrente.",
+                    clima: "Tormentas torrenciales destructivas con granizo alternadas con períodos de sequía extrema e insolación perjudicial.",
+                    fisio: "Aborto floral masivo. Marchitamiento irreversible de hojas comerciales por tasas de transpiración que superan la capacidad radicular.",
+                    rinde: "Pérdida catastrófica por destrucción de tejido foliar e insolación directa. Descenso crítico en la clasificación comercial del tabaco.",
+                    socio: "Inviabilidad del sistema tradicional minifundista tabacalero. Fuerte desempleo estructural debido a la alta dependencia de mano de obra que tiene este cultivo.",
+                    status: ["danger", "danger", "danger", "danger"],
+                    statusText: ["Destructivo", "Estrés Crítico", "Pérdida Total", "Desempleo Rural"]
+                }
+            ]
+        },
+        poroto: {
+            name: "Poroto Seco (Leguminosa C3)",
+            scenarios: [
+                {
+                    maxTemp: 1.5,
+                    escenario: "SSP1-2.6 (Emisiones Bajas): Clima con alteraciones leves.",
+                    clima: "Precipitaciones en la zona umbral del este de la provincia que cubren los requerimientos mínimos del ciclo.",
+                    fisio: "Fijación biológica de nitrógeno eficiente. Regulación estomática adaptada sin exceder picos de respiración celular.",
+                    rinde: "Rendimiento promedio de granos dentro de los parámetros históricos regionales de secano.",
+                    socio: "Mantenimiento de márgenes económicos y cumplimiento de contratos de exportación sin sobresaltos.",
+                    status: ["normal", "normal", "normal", "normal"],
+                    statusText: ["Estable", "Óptimo", "Normal", "Seguro"]
+                },
+                {
+                    maxTemp: 2.5,
+                    escenario: "SSP2-4.5 (Emisiones Intermedias): Cruce de umbrales en fases críticas.",
+                    clima: "Retraso en el inicio de las lluvias de verano, forzando un corrimiento perjudicial de las fechas de siembra tradicionales.",
+                    fisio: "Olas de calor que coinciden con la antesis (floración). El estrés térmico >35°C provoca deshidratación del polen y consecuente aborto de flores.",
+                    rinde: "Reducción severa en el número de vainas por planta y granos por vaina. Pérdida del 20% del rendimiento físico final.",
+                    socio: "Inestabilidad financiera. Elevado riesgo económico debido a que es un cultivo que se realiza mayormente bajo condiciones de secano estricto.",
+                    status: ["warning", "danger", "warning", "warning"],
+                    statusText: ["Retraso Lluvias", "Aborto Floral", "Rinde Comprometido", "Riesgo Financiero"]
+                },
+                {
+                    maxTemp: 4.5,
+                    escenario: "SSP5-8.5 (Emisiones Altas): Desertificación y aridez extrema.",
+                    clima: "Déficit hídrico extremo y prolongado durante todo el ciclo biológico. Caída drástica de la humedad del suelo en toda el área productiva.",
+                    fisio: "Inhibición completa de la fijación simbiótica de nitrógeno. Cierre estomático permanente que conduce a la inanición de carbono y muerte celular.",
+                    rinde: "Fracaso total de la cosecha en zonas de secano tradicional. Imposibilidad de obtener semilla de calidad para la campaña siguiente.",
+                    socio: "Colapso de las economías regionales dependientes de la exportación de poroto. Descapitalización completa de productores y contratistas rurales.",
+                    status: ["danger", "danger", "danger", "danger"],
+                    statusText: ["Aridez Severa", "Inanición Carbono", "Pérdida Absoluta", "Quiebra / Éxodo"]
+                }
+            ]
+        }
+    };
+
+    function updateSimulator() {
+        const crop = document.getElementById('cropSelect').value;
+        const temp = parseFloat(document.getElementById('tempSlider').value);
+        const rain = document.getElementById('rainSelect').value;
+        const co2 = document.getElementById('co2Select').value;
+
+        // Visual update for the slider value display
+        document.getElementById('tempValue').innerText = `+${temp.toFixed(1)} °C`;
+
+        // Determine which category index to pull from based on the temperature perilla
+        let scenIndex = 0;
+        if (temp > 1.5 && temp <= 3.0) {
+            scenIndex = 1;
+        } else if (temp > 3.0) {
+            scenIndex = 2;
+        }
+
+        const data = database[crop].scenarios[scenIndex];
+
+        // Core text updates
+        document.getElementById('escenarioNombre').innerText = data.escenario;
+        
+        // Dynamic modification of text based on the other perillas (Precipitation and CO2 adjustments)
+        let climaText = data.clima;
+        let fisioText = data.fisio;
+        let rindeText = data.rinde;
+        let socioText = data.socio;
+
+        if (rain === 'extrema') {
+            climaText += " [ALERTA: Se simulan escorrentías torrenciales y erosión hídrica severa debido a la intensidad extrema de la lluvia].";
+            rindeText += " [Pérdida adicional por lavado de polen o asfixia radicular en zonas bajas].";
+        } else if (rain === 'alta' && temp >= 2.5) {
+            climaText += " [Efecto IPCC: Inundaciones pluviales recurrentes por aumento de la retención de vapor atmosférico].";
+        }
+
+        if (co2 === 'saturado' && crop !== 'caña') {
+            fisioText += " (El CO2 muy alto intenta compensar parcialmente la eficiencia de carboxilación por ser planta C3, pero el estrés por calor extremo anula el beneficio neto).";
+        } else if (co2 === 'saturado' && crop === 'caña') {
+            fisioText += " (La caña, al ser C4, ya está saturada de CO2 a niveles basales; el incremento extra de CO2 no genera ningún estímulo fotosintético significativo).";
+        }
+
+        // Apply to DOM
+        document.getElementById('outClima').innerText = climaText;
+        document.getElementById('outFisio').innerText = fisioText;
+        document.getElementById('outRinde').innerText = rindeText;
+        document.getElementById('outSocio').innerText = socioText;
+
+        // Style updates (Status boxes colors)
+        updateStatusStyle('statusClima', data.status[0], data.statusText[0]);
+        updateStatusStyle('statusFisio', data.status[1], data.statusText[1]);
+        updateStatusStyle('statusRinde', data.status[2], data.statusText[2]);
+        updateStatusStyle('statusSocio', data.status[3], data.statusText[3]);
+    }
+
+    function updateStatusStyle(elementId, statusClass, statusText) {
+        const el = document.getElementById(elementId);
+        el.className = `status-box status-${statusClass}`;
+        el.innerText = statusText;
+    }
+
+    // Initial run on page load
+    window.onload = function() {
+        updateSimulator();
+    };
+</script>
+
+</body>
+</html>
